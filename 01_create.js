@@ -207,3 +207,22 @@ WriteResult({ "nInserted" : 1 })
 //        writeConcern: <valores>, // relativa a los replica set
 //    }
 // )
+
+db.empleados.save({_id: 200, nombre: 'Juan', apellidos: 'Pérez'})
+WriteResult({ "nMatched" : 0, "nUpserted" : 1, "nModified" : 0, "_id" : 200 })
+db.empleados.save({_id: 201, nombre: 'Sara', apellidos: 'López'})
+
+db.empleados.save({_id: 200, nombre: 'Juan', apellidos: 'Pérez Gómez'}) // Actualización
+// debido a que el valor de _id ya existe en la colección
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+// Métodos adicionales para insertar (con la opción upsert)
+
+// db.<collection>.update()
+// db.<collection>.updateOne()
+// db.<collection>.updateMany()
+// db.<collection>.findAndModify()
+// db.<collection>.findOneAndUpdate()
+// db.<collection>.findOneAndReplace()
+
+// db.<collection>.bulkWrite()

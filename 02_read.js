@@ -182,3 +182,143 @@ db.clientes4.find({puntuaciones: {$elemMatch: {$gte: 50, $lt: 75}}}) // Todos lo
 // que alguno de sus elementos del array puntuaciones cumplan todas condiciones pasadas a
 // $elemMatch
 
+// Consulta de elementos en posiciones de campos con array (Utiliza la notación del punto)
+// Sintaxis {"<campo-array>.<posicion>": <valor>}
+
+db.clientes3.find({"clases.0": "padel"})
+
+// set de datos
+
+db.clientes5.insert([
+    {
+        nombre: "Juan",
+        apellidos: "García",
+        direcciones: [
+            {calle: "Alcalá 40", cp: "28001", localidad: "Vigo"},
+            {calle: "Zamora, 13", cp: "34005", localidad: "Madrid"}
+        ]
+    },
+    {
+        nombre: "Lucía",
+        apellidos: "Gómez",
+        direcciones: [
+            {calle: "Alcalá 60", cp: "28001", localidad: "Madrid"},
+            {calle: "Fuencarral, 13", cp: "28002", localidad: "Madrid"}
+        ]
+    }
+])
+
+// Consulta de igualdad exacta en campos de arrays de documentos
+
+db.clientes5.find({direcciones: [
+    {calle: "Alcalá 60", cp: "28001", localidad: "Madrid"},
+    {calle: "Fuencarral, 13", cp: "28002", localidad: "Madrid"}
+]}) // El valor exacto del array
+
+// Consulta de igualdad en campos contenidos en subdocumentos de un array
+// Notación del punto
+
+db.clientes5.find({"direcciones.localidad": "Madrid"}) // Todos los documentos que en su
+// campo direcciones en al menos uno de sus subdocumentos tenga ese valor en el campo localidad
+
+// Consulta de igualdad en campos contenidos en subdocumentos en una posición
+// concreta de un array
+
+db.clientes5.find({"direcciones.0.localidad": "Madrid"}) // Todos los documentos que en su
+// campo direcciones ek primer subdocumento tenga ese valor en el campo localidad
+
+// set de datos
+
+db.monitores.insert([
+    {
+        nombre: "Luis",
+        apellidos: "López",
+        actividades: [
+            {clase: "aerobic", turno: "mañana", homologado: false},
+            {clase: "aerobic", turno: "tarde", homologado: false},
+            {clase: "zumba", turno: "mañana", homologado: true},
+        ]
+    },
+    {
+        nombre: "María",
+        apellidos: "Pérez",
+        actividades: [
+            {clase: "aerobic", turno: "tarde", homologado: true},
+            {clase: "zumba", turno: "tarde", homologado: false},
+        ]
+    },
+    {
+        nombre: "Carlos",
+        apellidos: "Gónzalez",
+        actividades: [
+            {clase: "acquagym", turno: "tarde", homologado: true},
+            {clase: "zumba", turno: "tarde", homologado: true},
+        ]
+    },
+])
+
+// Consulta de múltiples condiciones en arrays de documentos que los elementos
+// pueden en combinación cumplir todas las condiciones
+
+db.monitores.find({"actividades.clase":"aerobic", "actividades.homologado": true}) 
+
+// Consulta de múltiples condiciones en arrays de documentos en los que al menos un solo elemento
+// debe cumplir todas las condiciones
+
+db.monitores.find({actividades: {$elemMatch: {clase: "aerobic", homologado: true}}})
+
+// Proyección de documentos de salida
+// db.<colección>.find(<doc-consulta>,<doc-proyeccion>)
+
+// Se devuelven todos los campos de los documentos si no se pasa documento de proyección
+
+// Devolución de los campos que se especifiquen y el campo _id
+// a los campos se les pasa el valor 1 en ese documento de proyección
+
+db.clientes.find({}, {nombre: 1}) // Devuelve todos los documentos de la colección
+// con el campo nombre y el campo _id (ya que este se devuelve siempre por defecto)
+
+db.clientes.find({edad: {$gte: 18}},{nombre: 1, apellidos: 1}) // Devolvera los documentos
+// de la colección con valores de edad igual o mayor a 18 con los campos nombre y apellidos
+
+// Proyecciones sin _id especificamos su valor como 0 en el doc de proyección
+
+db.clientes.find({edad: {$gte: 18}},{nombre: 1, apellidos: 1, _id: 0}) // idem anterior sin _id
+
+// Exclusión de los campos especificados en el doc de proyección
+// se le pasa el valor 0 a esos campos
+
+db.clientes.find({}, {nombre: 0, apellidos: 0}) // Devolver todos los documentos sin el campo nombre
+// y sin el campo apellidos
+
+// Combinación de inclusión y exclusión de campos en el doc de proyección: No se pueden
+// incluir y excluir campos en el mismo doc salvo que se combinen con el campo _id
+
+db.clientes.find({}, {nombre: 0, apellidos: 0, _id: 1}) // Aunque no haría falta porque _id
+// se devuelve por defecto no genera error
+
+db.clientes.find({}, {nombre: 1, apellidos: 1, _id: 0}) // Tampoco genera error
+
+db.clientes.find({}, {nombre: 1, apellidos: 0}) // Error
+Error: error: {
+    "ok" : 0,
+    "errmsg" : "Cannot do exclusion on field apellidos in inclusion projection",
+    "code" : 31254,
+    "codeName" : "Location31254"
+}
+
+// Proyección en documentos embebidos
+// notación del punto para el acceso
+
+db.clientes2.find({}, {nombre: 1, "domicilio.localidad": 1, _id: 0}) // Devuelve todos los
+// documentos de la colección con el campo nombre y con el campo domicilio limitado a su campo localidad
+
+// Proyección en arrays de documentos
+// también notación del punto
+
+db.clientes5.find({}, {nombre: 1, "direcciones.localidad": 1, _id: 0}) // Devuelve todos los
+// documentos de la colección con el campo nombre y con los subdocumentos de direcciones limitados
+// con el campo localidad
+
+
+

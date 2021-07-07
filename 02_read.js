@@ -87,3 +87,98 @@ db.clientes.find({
         {nombre: "José"}
     ]
 })
+
+// Nuevo set de datos
+
+db.clientes2.insert([
+    {
+        nombre: 'Celia',
+        apellidos: 'Sánchez',
+        domicilio: {
+            calle: 'Gran Vía, 90',
+            cp: '28003',
+            localidad: 'Madrid'
+        }
+    },
+    {
+        nombre: 'Carlos',
+        apellidos: 'Pérez',
+        domicilio: {
+            calle: 'Alcalá, 200',
+            cp: '28010',
+            localidad: 'Madrid'
+        }
+    },
+    {
+        nombre: 'Inés',
+        apellidos: 'Pérez',
+        domicilio: {
+            calle: 'Burgos, 10',
+            cp: '28900',
+            localidad: 'Alcorcón'
+        }
+    },
+])
+
+// Consulta de igualdad exacta en campo con documento embebido
+
+db.clientes2.find({domicilio: {calle: 'Burgos, 10', cp: '28900', localidad: 'Alcorcón'}}) // El
+// valor del campo tiene que ser exactamente igual
+
+db.clientes2.find({domicilio: {cp: '28900', calle: 'Burgos, 10', localidad: 'Alcorcón'}}) // No
+// se pueden alterar el orden de los campos
+
+// Consulta de igualdad en cambos de documentos embebidos
+// Se emplea la notación del punto igual que en los objetos JavaScript
+
+db.clientes2.find({"domicilio.localidad": "Madrid"})
+
+db.clientes2.find({"domicilio.localidad": "Madrid", "domicilio.cp": "28010"})
+
+// Set de datos
+
+db.clientes3.insert([
+    {nombre: 'Juan', apellidos: 'Pérez', clases: ['padel','esgrima','pesas']},
+    {nombre: 'Sara', apellidos: 'Fernández', clases: ['padel','esgrima']},
+    {nombre: 'Carlos', apellidos: 'Pérez', clases: ['esgrima','padel']},
+])
+
+// Consulta de igualdad exacta en campo con array
+
+db.clientes3.find({clases: ['padel','esgrima']}) // Si pasamos un array a un campo de tipo array
+// devolverá la igualdad exacta (puesto que considera que estamos evaluando ese valor)
+
+// Consulta de un elemento en campo con array
+
+db.clientes3.find({clases: 'esgrima'}) // Si pasamos un primario a un campo de tipo array devuelve
+// todos los documentos que en alguno de los elementos del array tenga ese valor
+
+// Consulta de múltiples elementos en campo con array
+// Operador $all: [<elemento>, <elemento>, ...]
+
+db.clientes3.find({clases: {$all: ['esgrima','padel']}}) // devolverá los documentos que
+// en su campo de tipo array clases contengan al menos todos los elementos pasados al operador $all
+
+// set de datos
+
+db.clientes4.insert([
+    {nombre: 'Carlos', apellidos: 'Pérez', puntuaciones: [100, 120, 44]},
+    {nombre: 'Sara', apellidos: 'López', puntuaciones: [60, 90, 70]},
+])
+
+// Consulta simple con operadores de comparación en campo con array
+
+db.clientes4.find({puntuaciones: {$lte: 50}}) // Todos los documentos que en alguno de sus
+// elementos del array puntuaciones cumplan la expresión
+
+// Consulta múltiple con operadores de comparación en campo con array
+
+db.clientes4.find({puntuaciones: {$gte: 50, $lt: 75}}) // Todos los documentos que en alguno
+// de sus elementos del array puntuaciones cumplan la expresión o una combinación de elementos
+// cumplan la expresión
+
+// La misma consulta con $elemMatch 
+db.clientes4.find({puntuaciones: {$elemMatch: {$gte: 50, $lt: 75}}}) // Todos los documentos
+// que alguno de sus elementos del array puntuaciones cumplan todas condiciones pasadas a
+// $elemMatch
+

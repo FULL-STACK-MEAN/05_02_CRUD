@@ -320,5 +320,35 @@ db.clientes5.find({}, {nombre: 1, "direcciones.localidad": 1, _id: 0}) // Devuel
 // documentos de la colección con el campo nombre y con los subdocumentos de direcciones limitados
 // con el campo localidad
 
+// Fin proyección
 
+// Consultas "especiales"
+// Consultas para campos con valor null o inexistentes (en cada doc)
+
+db.monitores.insert({nombre: "Sergio", apellidos: "Pérez"})
+db.monitores.insert({nombre: "Paula", apellidos: "López", actividades: null})
+
+
+db.monitores.find({actividades: null}) // Cuando pasamos el valor null a un campo en la consulta
+// devuelve los que tienen valor null en ese campo o no tienen el campo
+
+// Si necesitamos estrictamente los que tienen valor null
+// realizar la consulta por tipo de dato (operador type)
+
+db.monitores.find({actividades: {$type: 10}})
+
+// ó
+
+db.monitores.find({actividades: {$type: 'null'}})
+
+// Ver tipos de datos BSON https://docs.mongodb.com/manual/reference/bson-types/
+
+// Método findOne()
+
+// db.<coleccion>.findOne({consulta},{proyección})
+// Devuelve un solo documento con el primer resultado de la consulta
+// Aconsejable usar con consultas que usen campos con valores únicos
+// Se usa mucho en DEV/DBA porque devuelve pretty por defecto
+
+db.clientes.findOne({dni: '887654321S'})
 

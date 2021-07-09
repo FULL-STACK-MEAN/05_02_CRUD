@@ -136,3 +136,111 @@ db.clientes6.find({apellidos: {$regex: 'gó m', $options: 'ix'}}) // se pueden c
 // db.<coleccion>.find({<expresión consulta>, $comment: <comentarios>)
 
 db.clientes6.find({apellidos: {$regex: 'gó m', $options: 'ix'}, $comment: 'Devuelve los que contengan gom sin distinguir mayúsculas'})
+
+// Operadores de Arrays
+
+// $all, $elemMatch, $size
+
+// Operadores de Proyeccion
+
+// Operador $ (en proyeccion)
+// Definir en el documento de proyección los elementos a devolver de un campo array
+// en función de una expressión en el documento de consulta
+// y devuelve solo el primer elemento que cumpla la condición
+// db.<coleccion>.find({<array>:<valor>},{"<array>.$": 1})
+
+use videogames
+
+db.results.insert([
+    {player: 'Pepe', game: 'Tetris', points: [79,102,89,101]},
+    {player: 'Laura', game: 'Tetris', points: [120,99,100,120]}
+])
+
+db.results.find(
+    {game: 'Tetris', points: {$gte: 100}},
+    {_id: 0, "points.$": 1}
+)
+
+// Resultados
+
+// a) {points: [102,101]}, {points: [120,100,120]}
+
+// b) {game: 'Tetris',points: [102,101]}, {game: 'Tetris', points: [120,100,120]}
+
+// c) {game: 'Tetris',points: [102]}, {game: 'Tetris', points: [120]}
+
+// d) {points: [102]}, {points: [120, 120]}
+
+// d) {points: [102]}, {points: [120]} OK
+
+// e) Devuelve 2 documentos OK
+
+// $elemMatch en proyección
+// Idem anterior pero permite filtrar en campos de arrays de documentos
+
+db.games.insert([
+    {
+        game: 'Tetris',
+        players: [
+            {name: 'pepe', maxScore: 98},
+            {name: 'luisa', maxScore: 110},
+            {name: 'John', maxScore: 105},
+        ]
+    },
+    {
+        game: 'Mario Bros',
+        players: [
+            {name: 'pepe', maxScore: 70},
+            {name: 'luisa', maxScore: 98},
+            {name: 'John', maxScore: 110},
+        ]
+    }
+])
+
+// permite pasar la expresión dentro del documento de proyección
+
+db.games.find(
+    {game: 'Tetris'},
+    {_id: 0, players: {$elemMatch: {maxScore: {$gte: 100}}}}
+)
+
+// Respuestas
+
+// a) { "players" : [ 
+//         {"name" : "luisa", "maxScore" : 110 },
+//         {"name": 'John', maxScore: 105},
+//     ] 
+// }
+
+// b) { "players" : [ 
+//         {"name" : "luisa", "maxScore" : 110 },
+//         {"name": 'John', maxScore: 105},
+//     ] 
+// },
+// { "players" : [ 
+//         {"name": 'John', maxScore: 110},
+//     ] 
+// }
+
+// c) { "players" : [ 
+//         {"name" : "luisa", "maxScore" : 110 }
+//     ] 
+// },
+// { "players" : [ 
+//         {"name": 'John', maxScore: 110}
+//     ] 
+// }
+
+// d) { "players" : [ 
+//         {"name" : "luisa", "maxScore" : 110 }   OK
+//     ] 
+// }
+
+// Operador $slice en proyección
+// db.<coleccion>.find({<consulta>},{<array>: {$slice: <valor>}})
+
+db.results.find({},{_id: 0, points: {$slice: 3}}) // devolverá de ese campo los 3 primeros elementos
+
+db.results.find({},{_id: 0, points: {$slice: -2}}) // devolverá de ese campo los 2 últimos elementos
+
+db.results.find({},{_id: 0, points: {$slice: [1, 2]}}) // formato skip-limit

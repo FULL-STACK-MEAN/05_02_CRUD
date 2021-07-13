@@ -60,3 +60,45 @@ db.articulosSinColaccion.find({nombre: "cafe"}).collation({locale: "es", strengt
 { "_id" : 2, "nombre" : "café" }
 { "_id" : 3, "nombre" : "cafE" }
 { "_id" : 4, "nombre" : "cafÉ" }
+
+// caseLevel (boolean) que establece si distingue mayúsculas de minúsculas (usar con strength 1)
+db.articulosSinColaccion.find({nombre: "cafe"}).collation({locale: "es", strength: 1, caseLevel: true})
+{ "_id" : 1, "nombre" : "cafe" }
+{ "_id" : 2, "nombre" : "café" }
+
+// caseFirst "upper" | "lower", establece en búsquedas ordenadas la precedencia de mayúsculas sobre mínusculas o
+// viceversa sobrescribiendo el criterio que imponga locale
+db.articulosSinColaccion.find().collation({locale: "es", caseFirst: "upper"}).sort({nombre: 1})
+{ "_id" : 3, "nombre" : "cafE" }
+{ "_id" : 1, "nombre" : "cafe" }
+{ "_id" : 4, "nombre" : "cafÉ" }
+{ "_id" : 2, "nombre" : "café" }
+
+// numericOrdering (boolean) para ordenar de manera numérica en campos string
+// set de datos
+
+db.articulosSinColaccion.insert([
+    { "_id" : 10, "nombre" : "A1" },
+    { "_id" : 11, "nombre" : "A11" },
+    { "_id" : 12, "nombre" : "A2" },
+    { "_id" : 13, "nombre" : "A21" },
+    { "_id" : 14, "nombre" : "A3" }
+])
+
+// sin numericOrdering
+
+db.articulosSinColaccion.find({_id: {$gte: 10}}).collation({locale: "es"}).sort({nombre: 1})
+{ "_id" : 10, "nombre" : "A1" }
+{ "_id" : 11, "nombre" : "A11" }
+{ "_id" : 12, "nombre" : "A2" }
+{ "_id" : 13, "nombre" : "A21" }
+{ "_id" : 14, "nombre" : "A3" }
+
+// con numericOrdering
+
+db.articulosSinColaccion.find({_id: {$gte: 10}}).collation({locale: "es", numericOrdering: true}).sort({nombre: 1})
+{ "_id" : 10, "nombre" : "A1" }
+{ "_id" : 12, "nombre" : "A2" }
+{ "_id" : 14, "nombre" : "A3" }
+{ "_id" : 11, "nombre" : "A11" }
+{ "_id" : 13, "nombre" : "A21" }
